@@ -34,6 +34,9 @@ appimageTools.wrapType2 {
     install -Dm444 \
     ${appimageContents}/ArtixLogo.png \
       -t $out/share/icons/hicolor/512x512/apps/
+    substituteInPlace \
+      $out/share/applications/ArtixGamesLauncher.desktop \
+      --replace-fail 'Exec=ArtixGameLauncher %u' Exec=$out/bin/ArtixGamesLauncher\ %u
   '';
 
   meta = {
