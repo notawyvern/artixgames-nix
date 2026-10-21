@@ -2,48 +2,88 @@
   appimageTools,
   fetchurl,
   lib,
+  stdenvNoCC,
+  makeWrapper,
+  unzip,
+  pkgs,
 }:
 
 let
   pname = "ArtixGamesLauncher";
-  version = "2.0.5";
+  version = "1.7.0";
 
   src = fetchurl {
-    # the latest pinnable version. further ones, as of october
-    # 2026, break reproducibility through a mutable latest tag.
-    url = "https://launch.artix.com/archives/Artix_Games_Launcher-x86_64_2_0_5.AppImage";
-    hash = "sha256-umnUjit37tzV7Mwdr0n6yGRq8t/AkfrabnZVVnuXvg0=";
+    url = "https://chaoslabs.artix.com/Ruffle/${version}/ArtixGamesLauncher-Ruffle-${version}-linux-x64.zip";
+    hash = "sha256-lh3sNjKxHY9J0rOOY2iqObBaF5usBHQW3bHU9aHPF9s=";
   };
 
+  # since upstream is a zip file, we
+  # must extract it to make it available
+  # on the /nix/store
+  unpacked = stdenvNoCC.mkDerivation {
+    pname = "${pname}-unpacked";
+    inherit version src;
+    nativeBuildInputs = [ unzip ];
+    dontUnpack = true;
+
+    installPhase = ''
+      unzip "$src" -d "$out"
+    '';
+  };
+
+  appimage = "${unpacked}/ArtixGamesLauncher.AppImage";
+
   appimageContents = appimageTools.extract {
-    inherit pname version src;
+    inherit pname version;
+    src = appimage;
   };
 in
 appimageTools.wrapType2 {
-  inherit pname version src;
+  inherit pname version;
+  src = appimage;
+  extraPkgs =
+    pkgs: with pkgs; [
+      webkitgtk_4_1
+      libsoup_3
+      glib-networking
+    ];
+  nativeBuildInputs = [ makeWrapper ];
 
-  /*
-    the icon size is two times it,
-    but 512x512 is freedesktop standard
-  */
-  extraInstallCommands = ''
-    install -Dm444 \
-    ${appimageContents}/ArtixGamesLauncher.desktop \
-      -t $out/share/applications/
-
-    install -Dm444 \
-    ${appimageContents}/ArtixLogo.png \
-      -t $out/share/icons/hicolor/512x512/apps/
-    substituteInPlace \
-      $out/share/applications/ArtixGamesLauncher.desktop \
-      --replace-fail 'Exec=ArtixGameLauncher %u' Exec=$out/bin/ArtixGamesLauncher\ %u
+  profile = ''
+    export GIO_EXTRA_MODULES="${pkgs.glib-networking}/lib/gio/modules''${GIO_EXTRA_MODULES:+:$GIO_EXTRA_MODULES}"
   '';
 
+  passthru = {
+    inherit appimageContents;
+  };
+
+  extraInstallCommands = ''
+      install -Dm444 ${appimageContents}/com.artix.GamesLauncher.desktop \
+      $out/share/applications/com.artix.GamesLauncher.desktop
+
+      cp -r ${appimageContents}/usr/* $out/
+
+    substituteInPlace \
+      $out/share/applications/com.artix.GamesLauncher.desktop \
+      --replace-fail Exec=artix-games-launcher \
+      Exec=$out/bin/${pname}
+  '';
   meta = {
-    description = "Artix Games Launcher";
+    description = "Play Artix Entertainment's Flash games with Ruffle";
     homepage = "https://www.artix.com/";
-    license = lib.licenses.unfree;
     platforms = [ "x86_64-linux" ];
     mainProgram = pname;
+    license = with lib.licenses; [
+      mit
+      asl20
+      bsd0
+      bsd2
+      bsd3
+      cc0
+      isc
+      unlicense
+      zlib
+      mpl20
+    ];
   };
 }
