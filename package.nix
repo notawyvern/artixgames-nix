@@ -73,6 +73,10 @@ appimageTools.wrapType2 {
     homepage = "https://www.artix.com/";
     platforms = [ "x86_64-linux" ];
     mainProgram = pname;
+
+    # the project uses many free licenses, but
+    # its openness entirety is unknown, thus
+    # defaults to nonfree by nix standards.
     license = with lib.licenses; [
       mit
       asl20
@@ -84,6 +88,7 @@ appimageTools.wrapType2 {
       unlicense
       zlib
       mpl20
+      unfree
     ];
   };
 }

@@ -13,12 +13,12 @@ This developer is not affiliated with AE. The executable is the unmodified origi
 Through Nix, this one-liner can run the package before install:
 
 ```sh
-nix run github:notawyvern/artixgames-nix
+NIXPKGS_ALLOW_UNFREE=1 nix run --impure github:notawyvern/artixgames-nix
 ```
 
 ## Install
 
-Inherit inputs and use flakes or adapt it accordingly:
+[Allow unfree packages](https://wiki.nixos.org/wiki/Unfree_software), inherit inputs, and use flakes or adapt it accordingly:
 
 ```nix
 inputs = {
