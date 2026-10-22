@@ -17,9 +17,8 @@ let
     hash = "sha256-t4h0zDH70gtqLKhiv46r5dECs9fUWPI+5Q/9cDAYuH8=";
   };
 
-  # since upstream is a zip file, we
-  # must extract it to make it available
-  # on the /nix/store
+  # since upstream is a zip, we extract
+  # it before wrapping the appimage
   unpacked = stdenvNoCC.mkDerivation {
     pname = "${pname}-unpacked";
     inherit version src;
@@ -49,6 +48,7 @@ appimageTools.wrapType2 {
     ];
   nativeBuildInputs = [ makeWrapper ];
 
+  # essential, so the launcher can use tls
   profile = ''
     export GIO_EXTRA_MODULES="${pkgs.glib-networking}/lib/gio/modules''${GIO_EXTRA_MODULES:+:$GIO_EXTRA_MODULES}"
   '';
@@ -75,9 +75,8 @@ appimageTools.wrapType2 {
     platforms = [ "x86_64-linux" ];
     mainProgram = pname;
 
-    # the project uses many free licenses, but
-    # its openness entirety is unknown, thus
-    # defaults to nonfree by nix standards.
+    # the openness entirety of the project is unknown,
+    # so unfree is included by nix standards
     license = with lib.licenses; [
       mit
       asl20
