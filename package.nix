@@ -10,11 +10,11 @@
 
 let
   pname = "ArtixGamesLauncher";
-  version = "1.7.0";
+  version = "2.1.0";
 
   src = fetchurl {
     url = "https://chaoslabs.artix.com/Ruffle/${version}/ArtixGamesLauncher-Ruffle-${version}-linux-x64.zip";
-    hash = "sha256-lh3sNjKxHY9J0rOOY2iqObBaF5usBHQW3bHU9aHPF9s=";
+    hash = "sha256-t4h0zDH70gtqLKhiv46r5dECs9fUWPI+5Q/9cDAYuH8=";
   };
 
   # since upstream is a zip file, we
@@ -68,6 +68,7 @@ appimageTools.wrapType2 {
       --replace-fail Exec=artix-games-launcher \
       Exec=$out/bin/${pname}
   '';
+
   meta = {
     description = "Play Artix Entertainment's Flash games with Ruffle";
     homepage = "https://www.artix.com/";
