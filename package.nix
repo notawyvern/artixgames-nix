@@ -10,11 +10,11 @@
 
 let
   pname = "ArtixGamesLauncher";
-  version = "2.1.0";
+  version = "3.0.0";
 
   src = fetchurl {
     url = "https://chaoslabs.artix.com/Ruffle/${version}/ArtixGamesLauncher-Ruffle-${version}-linux-x64.zip";
-    hash = "sha256-t4h0zDH70gtqLKhiv46r5dECs9fUWPI+5Q/9cDAYuH8=";
+    hash = "sha256-HMbK/l2Lcn/danjVWsAAK1ExezInSKgD20OzI7YRsZo=";
   };
 
   # since upstream is a zip, we extract
